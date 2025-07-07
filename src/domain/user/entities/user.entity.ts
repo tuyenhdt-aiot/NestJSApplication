@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
@@ -6,7 +12,7 @@ export class User {
   id: number;
 
   @Column()
-  username: string;
+  email: string;
 
   @Column()
   password: string;
@@ -15,8 +21,14 @@ export class User {
   name: string;
 
   @Column()
-  age: number;
-
-  @Column()
   role: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @Column({nullable:true, default:null})
+  refreshToken: string;
 }
