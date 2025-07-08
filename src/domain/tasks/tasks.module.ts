@@ -8,6 +8,6 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [TypeOrmModule.forFeature([Tasks]), ConfigModule],
   controllers: [TasksController],
-  providers: [TasksService]
+  providers: [TasksService],
 })
 export class TasksModule {}

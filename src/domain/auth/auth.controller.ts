@@ -16,17 +16,24 @@ export class AuthController {
 
   @Post('login')
   @UsePipes(ValidationPipe)
-  login(@Body() loginUserDto: loginUserDto): Promise<any> {
-    return this.authService.login(loginUserDto);
+  async login(@Body() loginUserDto: loginUserDto) {
+    const auth = await this.authService.login(loginUserDto);
+    return {
+      message: 'Login successfully',
+      data: auth,
+    };
   }
 
   @Post('register')
-  register(@Body() registerUserDto: registerUserDto) {
-    this.authService.register(registerUserDto);
+  async register(@Body() registerUserDto: registerUserDto) {
+    const auth = await this.authService.register(registerUserDto);
+    return {
+      message: 'Register successfully',
+    };
   }
 
   @Post('refresh-token')
-  refreshToken(@Body() { refresh_token }): Promise<any> {
-    return this.authService.refreshToken(refresh_token);
+  async refreshToken(@Body() { refresh_token }) {
+    return await this.authService.refreshToken(refresh_token);
   }
 }

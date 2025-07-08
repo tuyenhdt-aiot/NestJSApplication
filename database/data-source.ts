@@ -8,7 +8,7 @@ export const dataSourceOptions: DataSourceOptions = {
     password: '',
     database: 'NestJS',
     entities: ['dist/**/*.entity{.ts,.js}'],
-    migrations: ['dist/db/migrations/*.js'],   
+    migrations: ['dist/database/migrations/*.js'],   
     synchronize: false,
 }
 const dataSource = new DataSource(dataSourceOptions);

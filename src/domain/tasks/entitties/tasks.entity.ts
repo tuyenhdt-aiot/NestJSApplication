@@ -1,21 +1,32 @@
-import { Optional } from "@nestjs/common";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Optional } from '@nestjs/common';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
-export class Tasks{
-    @PrimaryGeneratedColumn()
-    id: number;
+export class Tasks {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    title: string;
+  @Column()
+  title: string;
 
-    @Column()
-    description: string;
+  @Column()
+  description: string;
 
-    @Column()
-    status: string;
+  @Column()
+  status: string;
 
-    @Optional()
-    @Column()
-    file: string;
+  @Column({ nullable: true, default: null })
+  file: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

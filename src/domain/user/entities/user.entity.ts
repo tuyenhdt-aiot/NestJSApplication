@@ -29,6 +29,6 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({nullable:true, default:null})
+  @Column({ nullable: true, default: null })
   refreshToken: string;
 }

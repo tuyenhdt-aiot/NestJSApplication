@@ -1,6 +1,11 @@
 import { loginUserDto } from './dto/login-user.dto';
 import { registerUserDto } from './dto/register-user.dto';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
@@ -38,10 +43,16 @@ export class AuthService {
   }
 
   async register(registerUserDto: registerUserDto): Promise<User> {
+    const checkExistEmail = await this.userRepository.findOne({
+      where: { email: registerUserDto.email },
+    });
+    if (checkExistEmail) {
+      throw new BadRequestException('Email already exists');
+    }
     const hashPassword = await this.hashPassword(registerUserDto.password);
     return await this.userRepository.save({
       ...registerUserDto,
-    //   refreshToken: 'refresh_token_string',
+      //   refreshToken: 'refresh_token_string',
       password: hashPassword,
     });
   }
@@ -60,7 +71,7 @@ export class AuthService {
         HttpStatus.UNAUTHORIZED,
       );
     }
-    const payload = { id: user.id, email: user.email };
+    const payload = { id: user.id, email: user.email, roles: [user.role] };
     return this.generateToken(payload);
   }
 
