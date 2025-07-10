@@ -36,7 +36,7 @@ export class AuthService {
     });
     await this.userRepository.update(
       { email: payload.email },
-      { refreshToken: refresh_token },
+      { refresh_token: refresh_token },
     );
 
     return { access_token, refresh_token };
@@ -52,22 +52,34 @@ export class AuthService {
     const hashPassword = await this.hashPassword(registerUserDto.password);
     return await this.userRepository.save({
       ...registerUserDto,
-      //   refreshToken: 'refresh_token_string',
       password: hashPassword,
     });
   }
 
-  async login(loginUserDto: loginUserDto): Promise<any> {
+  async login(
+    loginUserDto: loginUserDto,
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.userRepository.findOne({
       where: { email: loginUserDto.email },
     });
     if (!user) {
-      throw new HttpException('Email is not exist', HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        {
+          message: 'Email is not exists',
+          error: 'Unauthorized',
+          StatusCode: HttpStatus.UNAUTHORIZED,
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
     }
     const checkPass = bcrypt.compareSync(loginUserDto.password, user.password);
     if (!checkPass) {
       throw new HttpException(
-        'Password is not correct',
+        {
+          message: 'Password is not correct',
+          error: 'Unauthorized',
+          StatusCode: HttpStatus.UNAUTHORIZED,
+        },
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -75,26 +87,36 @@ export class AuthService {
     return this.generateToken(payload);
   }
 
-  async refreshToken(refresh_token: string): Promise<any> {
+  async refreshToken(
+    refresh_token: string,
+  ): Promise<{ access_token: string; refresh_token: string }> {
     try {
       const verify = await this.jwtService.verifyAsync(refresh_token, {
         secret: this.configService.get<string>('SECRET'),
       });
       const checkExistToken = await this.userRepository.findOneBy({
         email: verify.email,
-        refreshToken: refresh_token,
+        refresh_token: refresh_token,
       });
       if (checkExistToken) {
         return this.generateToken({ id: verify.id, email: verify.email });
       } else {
         throw new HttpException(
-          'Refresh token is not valid',
+          {
+            message: 'Refresh token is not valid',
+            error: 'Bad request',
+            StatusCode: HttpStatus.BAD_REQUEST,
+          },
           HttpStatus.BAD_REQUEST,
         );
       }
     } catch (error) {
       throw new HttpException(
-        'Refresh token is not valid',
+        {
+          message: 'Refresh token is not valid',
+          error: 'Bad request',
+          StatusCode: HttpStatus.BAD_REQUEST,
+        },
         HttpStatus.BAD_REQUEST,
       );
     }

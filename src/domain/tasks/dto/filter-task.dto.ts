@@ -1,14 +1,9 @@
-import { IsNumberString, IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
-export class FilterTaskDto {
-  @IsNumberString()
-  @IsOptional()
-  page?: number;
-
-  @IsNumberString()
-  @IsOptional()
-  limit?: number;
-
+export class FilterTaskDto extends PaginationQueryDto {
+  @ApiProperty({ example: 'DONE', enum: ['DONE', 'IN_PROGRESS', 'OPEN'] })
   @IsString()
   @IsOptional()
   status?: string;

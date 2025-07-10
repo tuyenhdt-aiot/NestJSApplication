@@ -1,13 +1,17 @@
-import { IsIn, IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 import { TaskStatus } from '../enum/task-status.enum';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateTaskDto {
+  @ApiProperty({ example: 'Title 1' })
   @IsString()
   title: string;
 
+  @ApiProperty({ example: 'Description 1' })
   @IsString()
   description: string;
 
-  @IsIn([TaskStatus.OPEN, TaskStatus.IN_PROGRESS, TaskStatus.DONE])
-  status: string;
+  @ApiProperty({ example: 'DONE', enum: ['DONE', 'IN_PROGRESS', 'OPEN'] })
+  @IsEnum(TaskStatus)
+  status: TaskStatus;
 }

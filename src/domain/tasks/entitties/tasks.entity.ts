@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { TaskStatus } from '../enum/task-status.enum';
 
 @Entity()
 export class Tasks {
@@ -18,15 +19,19 @@ export class Tasks {
   @Column()
   description: string;
 
-  @Column()
-  status: string;
+  @Column({
+    type: 'enum',
+    enum: TaskStatus,
+    default: TaskStatus.OPEN,
+  })
+  status: TaskStatus;
 
   @Column({ nullable: true, default: null })
   file: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 }

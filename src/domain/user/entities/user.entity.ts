@@ -1,3 +1,4 @@
+import { Role } from 'src/domain/auth/enum/user-role.enum';
 import {
   Entity,
   Column,
@@ -20,15 +21,19 @@ export class User {
   @Column()
   name: string;
 
-  @Column()
-  role: string;
+  @Column({
+    type:'enum',
+    enum: Role,
+    default: Role.USER
+  })
+  role: Role;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 
   @Column({ nullable: true, default: null })
-  refreshToken: string;
+  refresh_token: string;
 }

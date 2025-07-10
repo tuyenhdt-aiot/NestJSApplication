@@ -10,11 +10,11 @@ import { UserModule } from './domain/user/user.module';
 import { TasksModule } from './domain/tasks/tasks.module';
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(dataSourceOptions),
     AuthModule,
     UserModule,
     TasksModule,
-    ConfigModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

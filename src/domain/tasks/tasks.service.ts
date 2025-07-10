@@ -2,9 +2,11 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tasks } from './entitties/tasks.entity';
-import { DeleteResult, Like, Repository, UpdateResult } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { FilterTaskDto } from './dto/filter-task.dto';
+import { TaskStatus } from './enum/task-status.enum';
+import { getPaginationParam } from 'src/common/pagination/pagination';
 
 @Injectable()
 export class TasksService {
@@ -13,25 +15,27 @@ export class TasksService {
   ) {}
 
   async getAllTask(query: FilterTaskDto) {
-    const limit = query.limit || 10;
-    const page = query.page || 1;
-    const skip = (page - 1) * limit;
-    const where : any = {};
-    if (query.status){
-        where.status = Like('%' + query.status + '%');
+    const { skip, take, page, limit } = getPaginationParam(
+      Number(query.page),
+      Number(query.limit),
+    );
+    const where: FindOptionsWhere<Tasks> = {};
+    if (query.status) {
+      where.status = query.status as TaskStatus;
     }
     const [res, total] = await this.taskRepository.findAndCount({
       where,
-      order: { createdAt: 'ASC' },
-      take: limit,
-      skip: skip,
+      order: { created_at: 'ASC' },
+      take,
+      skip,
       select: ['id', 'title', 'description', 'status', 'file'],
     });
+
     return {
       res,
       total,
-      page: page,
-      limit: limit,
+      page,
+      limit,
     };
   }
 
@@ -51,28 +55,33 @@ export class TasksService {
     id: number,
     updateTaskDto: UpdateTaskDto,
     file: string,
-  ): Promise<UpdateResult> {
+  ): Promise<Tasks> {
     const task = await this.taskRepository.findOneBy({ id });
     if (!task) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
-    return await this.taskRepository.update(id, { ...updateTaskDto, file });
+    const updateTask = await this.taskRepository.update(id, {
+      ...updateTaskDto,
+      file,
+    });
+    return this.getTaskById(id);
   }
 
-  async deleteTask(id: number): Promise<DeleteResult> {
+  async deleteTask(id: number): Promise<boolean> {
     const task = await this.taskRepository.findOneBy({ id });
     if (!task) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
-    return await this.taskRepository.delete(id);
-  }
-
-  async uploadFile(id: number, file: string): Promise<boolean> {
-    const task = await this.taskRepository.findOneBy({ id });
-    if (!task) {
-      throw new NotFoundException(`Task with ID ${id} not found`);
-    }
-    const updateTask = await this.taskRepository.update(id, { file });
+    const deleteTask = await this.taskRepository.delete(id);
     return true;
+  }
+
+  async uploadFile(id: number, file: string): Promise<Tasks> {
+    const task = await this.taskRepository.findOneBy({ id });
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+    const updateFile = await this.taskRepository.update(id, { file });
+    return this.getTaskById(id);
   }
 }
